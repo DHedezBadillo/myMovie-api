@@ -1,6 +1,6 @@
 //loads the express framework
-const express = require('express'),
-const app = express(),
+const express = require('express')
+const app = express()
 
 //imports middleware libraries
 const morgan = require('morgan'),
