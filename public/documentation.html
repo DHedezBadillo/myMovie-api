@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>DOCUMENTATION</title>
+    <title>Documentation</title>
   </head>
   <body>
     <h1>Documentation Page</h1>
@@ -14,6 +14,111 @@
       will be able to sign up, update their personal information, and create a
       list of their favorite movies.
     </p>
-   </body>
-</html>
+    <table>
+      <tr>
+        <th>Request</th>
+        <th>URL</th>
+        <th>Request Parameter</th>
+        <th>HTTP Method</th>
+        <th>Response body data format</th>
+        <th>Request body data format</th>
+      </tr>
+      <tr>
+        <td>Returns a list of all movies to the user</td>
+        <td>"/movies"</td>
+        <td>none</td>
+        <td>GET <br> Example: app.get("/movies", (req,res) =>{})</td>
+        <td>
+          A JSON object holding data about all the movies <br />
+          Example: {Title: "One Flew Over the Cuckoo's Nest", Description: "",
+          Director: { Name: "Milos Forman", Bio: " }, Genre: { Name: "Drama",
+          Description:""} }
+        </td>
+      </tr>
+      <tr>
+        <td>Returns data about a single movie by title to the user</td>
+        <td>"/movies/:title"</td>
+        <td>:title</td>
+        <td>GET <br> Example: app.get("/movies/:title", (req,res) =>{})</td>
+        <td>
+          A JSON object holding data about a single movie <br />
+          Example: {Title: "One Flew Over the Cuckoo's Nest", Description: ""}
+        </td>
+      </tr>
+      <tr>
+        <td>Returns data about a genre by name</td>
+        <td>"/movies/genre/:name"</td>
+        <td>:name</td>
+        <td>GET<br> Example: app.get("/movies/genre/:name", (req,res) =>{})</td>
+        <td>
+          A JSON object holding data about a genre <br />
+          Example: Genre: { Name: "Drama", Description:""}
+        </td>
+      </tr>
 
+      <tr>
+        <td>Returns data about a director by name</td>
+        <td>"/movies/directors/:name"</td>
+        <td>:name</td>
+        <td>GET <br> Example: app.get("/movies/directors/:name", (req,res) =>{})</td>
+        <td>
+          A JSON object holding data about a director <br />
+          Example: Director: { Name: "Milos Forman", Bio: "" },
+        </td>
+      </tr>
+    
+<tr>
+        <td>Allows new users to register</td>
+        <td>"/users"</td>
+        <td>none</td>
+        <td>POST <br>Example: app.post("/users", (req,res) =>{})</td>
+        <td>
+          A JSON object holding data about new user that was added <br />
+          Example: {
+            ID: Integer,
+            Username: String,
+            Password: String,
+            Email: String,
+            Birthday: Date
+          },
+        </td>
+        <td>
+          A JSON object is requested  <br />
+          Example: {
+            ID: Integer,
+            Username: String,
+            Password: String,
+            Email: String,
+            Birthday: Date
+          },
+        </td>
+      
+      <tr>
+        <td>Allows users to update their user info</td>
+        <td>"/users/:username"</td>
+        <td>:username</td>
+        <td>PUT <br> Example: app.put("/users:username", (req,res) =>{})</td>
+      </tr>
+      <tr>
+        <td>Allows users to add a movie to their list of favorites</td>
+        <td>"/users/:username/movies/:movieID"</td>
+        <td>:username,:movieID</td>
+        <td>POST <br> Example: app.post("/users/:username/movies/:movieID", (req,res) =>{})</td>
+      </tr>
+      <tr>
+        <td>Allows users to remove a movie from their list of favorites</td>
+        <td>"/users/:username//movies/:movieID"</td>
+        <td>:username,:movieID</td>
+        <td>DELETE <br> Example: app.delete("/users/:username/movies/:movieID", (req,res) =>{})</td>
+
+      </tr>
+      <tr>
+        <td>Allows existing users to deregister</td>
+        <td>"/users/:username"</td>
+        <td>:username</td>
+        <td>DELETE <br> Example: app.delete("/users/:username", (req,res) =>{})</td>
+        <td>A text message indicating that the user has been deleted</td>
+      </tr>
+    </table>
+  </body>
+</html>
