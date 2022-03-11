@@ -1,5 +1,3 @@
-
-
 //loads the express framework, middleware libraries, and add-ons
 const express = require('express'),
   app = express(),
@@ -7,6 +5,26 @@ const express = require('express'),
   bodyParser = require('body-parser'),
   uuid = require('uuid'),
   methodOverride = require('method-override');
+
+  //serves static content from the 'public' directory
+  app.use(express.static('public'));
+
+  //logs request data using the morgan middleware library
+  app.use(morgan('common'));
+
+  //body-parser middleware function
+  app.use(bodyParser.urlencoded({
+    extended: true
+  }));
+
+  app.use(bodyParser.json());
+  app.use(methodOverride());
+
+  //handles errors
+  app.use((err, req, res, next) => {
+    console.error(err.stack);
+    res.status(500).send('WTF?!');
+  });
 
 //array of objects containing users
 let users = [
@@ -71,9 +89,7 @@ let movies = [
   app.put('/users/:id', (req, res ) => {
     const { id } = req.params;
     const updatedUser = req.body;
-
     let user = users.find( user => user.id == id);
-
     if (user) {
       user.name = updatedUser.name;
       res.status(200).json(user);
@@ -174,26 +190,6 @@ let movies = [
   //
   app.get('/documentation', (req, res) => {
     res.sendFile('public/documentation.html', { root: __dirname });
-  });
-
-  //serves static content from the 'public' directory
-  app.use(express.static('public'));
-
-  //logs request data using the moorgan middleware library
-  app.use(morgan('common'));
-
-  //body-parser middleware function
-  app.use(bodyParser.urlencoded({
-    extended: true
-  }));
-
-  app.use(bodyParser.json());
-  app.use(methodOverride());
-
-  //handles errors
-  app.use((err, req, res, next) => {
-    console.error(err.stack);
-    res.status(500).send('WTF?!');
   });
 
   //listens to port 8080
