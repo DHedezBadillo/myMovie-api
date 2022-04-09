@@ -63,7 +63,7 @@ const methodOverride = require('method-override');
 
   //Returns data about a single movie by title to the user
   app.get("/movies/:title", (req, res) => {
-    Movies.findOne({Title: req.params.Title})
+    Movies.findOne({Title: req.params.title})
     .then((movie) => {
       res.json(movie);
     })
@@ -206,6 +206,6 @@ const methodOverride = require('method-override');
 
   //listens to port 8080
   const port = process.env.PORT || 8080;
-  app.listen(port, '0.0.0', () => {
+  app.listen(port, '0.0.0.0', () => {
     console.log('Listening on Port ' + port);
   });
