@@ -41,61 +41,87 @@ const methodOverride = require('method-override');
   //Returns a list of all movies
   app.get("/movies", (req, res) => {
     Movies.find().then((movies) => {
-      res.status(201).json(movies);
+      res.status(200).json(movies);
     })
     .catch((err) => {
       console.error(err);
-      res.status (500).send("Error:" + err);
-    });
-  });
-
-  //Returns a list of all users
-  app.get("/users", function (req, res) {
-    Users.find()
-    .then(function (users) {
-      res.status(201).json(users);
-    })
-    .catch(function (err) {
-      console.error(err);
-      res.status(500).send ("Error: " + err);
+      res.status (500).send("Error: " + err);
     });
   });
 
   //Returns data about a single movie by title to the user
-  app.get("/movies/:title", (req, res) => {
-    Movies.findOne({Title: req.params.title})
+  app.get("/movies/:Title", (req, res) => {
+    Movies.findOne({Title: req.params.Title})
     .then((movie) => {
-      res.json(movie);
+      if (movie) { 
+        res.status(200).json(movie);
+      } else {
+        res.status(400).send('Movie not found');
+      };
     })
     .catch((err) => {
-      console.error(err);
-      res.status(500).send("Error: " + err)
+      res.status(500).send('Error: ' + err);
     });
-  });
+});
 
   //Returns data about a genre by name/title (e.g., "Thriller")
-  app.get("/genre/:Name", (req, res) => {
-    Genres.findOne({Name: req.params.Name})
-    .then((genre) => {
-      res.json(genre.Description);
-    })
-    .catch((err) => {
-      console.error(err);
-      res.status(500).send("Error: " + err);
-    });
+  app.get('/movies/Genre/:Name', (req, res) => {
+    Movies.findOne({ 'Genre.Name': req.params.Name }) // Find one movie with the genre by genre name
+      .then((movie) => {
+        if (movie) { // If a movie with the genre was found, return json of genre info, else throw error
+          res.status(200).json(movie.Genre);
+        } else {
+          res.status(400).send('Genre not found');
+        };
+      })
+      .catch((err) => {
+        res.status(500).send('Error: ' + err);
+      });
   });
+  
   //Returns data about a director by name
-  app.get("/director/:Name", (req, res) => {
-    Directors.findOne({Name: req.params.Name})
-    .then((director) => {
-      res.json(director);
+  app.get('/movies/Director/:Name', (req, res) => {
+    Movies.findOne({ 'Director.Name': req.params.Name }) // Find one movie with the director by name
+      .then((movie) => {
+        if (movie) { // If a movie with the director was found, return json of director info, else throw error
+          res.status(200).json(movie.Director);
+        } else {
+          res.status(400).send('Director not found');
+        };
+      })
+      .catch((err) => {
+        res.status(500).send('Error: ' + err);
+      });
+  });
+
+//Returns a list of all users
+app.get("/users", function (req, res) {
+  Users.find()
+  .then(function (users) {
+    res.status(200).json(users);
+  })
+  .catch(function (err) {
+    console.error(err);
+    res.status(500).send ("Error: " + err);
+  });
+});
+
+  // READ: Return data on a single user by username
+app.get('/users/:Username', (req, res) => {
+  Users.findOne({ Username: req.params.Username })
+    .then((user) => {
+      if (user) { // If a user with the corresponding username was found, return user info
+        res.status(200).json(user);
+      } else {
+        res.status(400).send('User with the username ' + req.params.Username + ' was not found');
+      };
     })
     .catch((err) => {
       console.error(err);
-      res.status(500).send("Error: " + err);
+      res.status(500).send('Error: ' + err);
     });
-  });
- 
+});
+
   //Allows users to register, creates a new user profile
   app.post("/users", (req, res ) => {
     Users.findOne({Username: req.body.Username})
@@ -108,6 +134,7 @@ const methodOverride = require('method-override');
           Password: req.body.Password,
           Email: req.body.Email,
           Birthday: req.body.Birthday,
+          FavoriteMovies: req.body.FavoriteMovies
         })
         .then((user) => {
           res.status(201).json(user);
@@ -149,34 +176,33 @@ const methodOverride = require('method-override');
   });
 
   //Adds a movie to the list of a user's list of favorites
-  app.post('/users/:Username/movies/:MovieID', (req, res ) => {
-    Users.findOneAndUpdate({Username: req.params.Username}, {
-      $push: { FavoriteMoves: req.params.MovieID}
-    },
-    { new: true },//This line makes sure that the updated document is returned 
-    (err, updatedUser) => {
-      if (err) {
-        console.error(err);
-        res.status(500).send('Error: ' + err);
-      } else {
-        res.json(updatedUser);
-      }
-    });
-  }); 
-
-  //Deletes a movie from a user's list of favorites
-  app.delete('/users/:Username/movies/:MovieID', (req, res ) => {
-    Users.findOneAndUpdate({ Username: req.params.Username },
-      { $pull: { FavoriteMovies: req.params.MovieID } },
-      { new: true})
+  app.post('/users/:Username/movies/:MovieId', (req, res) => {
+    Users.findOneAndUpdate({ Username: req.params.Username }, // Find user by username
+      { $push: { FavoriteMovies: req.params.MovieId } }, // Add movie to the list
+      { new: true }) // Return the updated document
       .then((updatedUser) => {
-        res.json(updatedUser);
+        res.json(updatedUser); // Return json object of updatedUser
       })
       .catch((err) => {
         console.error(err);
-        res.status(500).send("Error: " + err);
+        res.status(500).send('Error: ' + err);
       });
   });
+
+  //Deletes a movie from a user's list of favorites
+  app.delete('/users/:Username/movies/:MovieID', (req, res) => {
+    Users.findOneAndUpdate({ Username: req.params.Username }, // Find user by username
+      { $pull: { FavoriteMovies: req.params.MovieID } }, // Remove movie from the list
+      { new: true }) // Return the updated document
+      .then((updatedUser) => {
+        res.json(updatedUser); // Return json object of updatedUser
+      })
+      .catch((err) => {
+        console.error(err);
+        res.status(500).send('Error: ' + err);
+      });
+  });
+  
 
    //Deletes a user by username
    app.delete('/users/:Username', (req, res ) => {
