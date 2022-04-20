@@ -176,9 +176,9 @@ app.get('/users/:Username', (req, res) => {
   });
 
   //Adds a movie to the list of a user's list of favorites
-  app.post('/users/:Username/movies/:MovieId', (req, res) => {
+  app.post('/users/:Username/movies/:MovieID', (req, res) => {
     Users.findOneAndUpdate({ Username: req.params.Username }, // Find user by username
-      { $push: { FavoriteMovies: req.params.MovieId } }, // Add movie to the list
+      { $push: { FavoriteMovies: req.params.MovieID } }, // Add movie to the list
       { new: true }) // Return the updated document
       .then((updatedUser) => {
         res.json(updatedUser); // Return json object of updatedUser
