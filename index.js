@@ -24,6 +24,13 @@ const methodOverride = require('method-override');
     extended: true
   }));
 
+  app.use(express.static('public')); 
+
+  //Requires passport authentication
+  let auth = require('./auth')(app);
+  const passport = require('passport');
+  require('./passport');
+
   //logs requests to server
   app.use(morgan('common'));
 
@@ -39,7 +46,7 @@ const methodOverride = require('method-override');
   });
 
   //Returns a list of all movies
-  app.get("/movies", (req, res) => {
+  app.get("/movies", passport.authenticate('jwt', { session: false }), (req, res) => {
     Movies.find().then((movies) => {
       res.status(200).json(movies);
     })
@@ -50,7 +57,7 @@ const methodOverride = require('method-override');
   });
 
   //Returns data about a single movie by title to the user
-  app.get("/movies/:Title", (req, res) => {
+  app.get("/movies/:Title", passport.authenticate('jwt', { session: false }), (req, res) => {
     Movies.findOne({Title: req.params.Title})
     .then((movie) => {
       if (movie) { 
@@ -65,7 +72,7 @@ const methodOverride = require('method-override');
 });
 
   //Returns data about a genre by name/title (e.g., "Thriller")
-  app.get('/movies/Genre/:Name', (req, res) => {
+  app.get('/movies/Genre/:Name', passport.authenticate('jwt', { session: false }), (req, res) => {
     Movies.findOne({ 'Genre.Name': req.params.Name }) // Find one movie with the genre by genre name
       .then((movie) => {
         if (movie) { // If a movie with the genre was found, return json of genre info, else throw error
@@ -80,7 +87,7 @@ const methodOverride = require('method-override');
   });
   
   //Returns data about a director by name
-  app.get('/movies/Director/:Name', (req, res) => {
+  app.get('/movies/Director/:Name', passport.authenticate('jwt', { session: false }), (req, res) => {
     Movies.findOne({ 'Director.Name': req.params.Name }) // Find one movie with the director by name
       .then((movie) => {
         if (movie) { // If a movie with the director was found, return json of director info, else throw error
@@ -95,7 +102,7 @@ const methodOverride = require('method-override');
   });
 
 //Returns a list of all users
-app.get("/users", function (req, res) {
+app.get("/users", passport.authenticate('jwt', { session: false }), function (req, res) {
   Users.find()
   .then(function (users) {
     res.status(200).json(users);
@@ -107,7 +114,7 @@ app.get("/users", function (req, res) {
 });
 
   // READ: Return data on a single user by username
-app.get('/users/:Username', (req, res) => {
+app.get('/users/:Username', passport.authenticate('jwt', { session: false }), (req, res) => {
   Users.findOne({ Username: req.params.Username })
     .then((user) => {
       if (user) { // If a user with the corresponding username was found, return user info
@@ -150,9 +157,10 @@ app.get('/users/:Username', (req, res) => {
       res.status(500).send("Error: " + error);
     });
   });
+  
 
   //Allows users to update their info
-  app.put("/users/:Username", (req, res ) => {
+  app.put("/users/:Username", passport.authenticate('jwt', { session: false }), (req, res ) => {
     Users.findOneAndUpdate(
       {Username: req.params.Username},
       {
@@ -176,7 +184,7 @@ app.get('/users/:Username', (req, res) => {
   });
 
   //Adds a movie to the list of a user's list of favorites
-  app.post('/users/:Username/movies/:MovieID', (req, res) => {
+  app.post('/users/:Username/movies/:MovieID', passport.authenticate('jwt', { session: false }), (req, res) => {
     Users.findOneAndUpdate({ Username: req.params.Username }, // Find user by username
       { $push: { FavoriteMovies: req.params.MovieID } }, // Add movie to the list
       { new: true }) // Return the updated document
@@ -190,7 +198,7 @@ app.get('/users/:Username', (req, res) => {
   });
 
   //Deletes a movie from a user's list of favorites
-  app.delete('/users/:Username/movies/:MovieID', (req, res) => {
+  app.delete('/users/:Username/movies/:MovieID', passport.authenticate('jwt', { session: false }), (req, res) => {
     Users.findOneAndUpdate({ Username: req.params.Username }, // Find user by username
       { $pull: { FavoriteMovies: req.params.MovieID } }, // Remove movie from the list
       { new: true }) // Return the updated document
@@ -205,7 +213,7 @@ app.get('/users/:Username', (req, res) => {
   
 
    //Deletes a user by username
-   app.delete('/users/:Username', (req, res ) => {
+   app.delete('/users/:Username', passport.authenticate('jwt', { session: false }), (req, res ) => {
     Users.findOneAndRemove({ Username: req.params.Username })
     .then((user) => {
       if (!user) {
