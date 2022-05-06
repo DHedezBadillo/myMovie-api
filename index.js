@@ -26,6 +26,10 @@ const methodOverride = require('method-override');
 
   app.use(express.static('public')); 
 
+  //Requires CORS
+  const cors = require('cors');
+  app.use(cors());
+
   //Requires passport authentication
   let auth = require('./auth')(app);
   const passport = require('passport');
@@ -131,6 +135,7 @@ app.get('/users/:Username', passport.authenticate('jwt', { session: false }), (r
 
   //Allows users to register, creates a new user profile
   app.post("/users", (req, res ) => {
+    let hashedPassword = Users.hashPassword(req.body.Password);
     Users.findOne({Username: req.body.Username})
     .then((user) => {
       if (user) {
@@ -138,7 +143,7 @@ app.get('/users/:Username', passport.authenticate('jwt', { session: false }), (r
       } else {
         Users.create({
           Username: req.body.Username,
-          Password: req.body.Password,
+          Password: hashedPassword,
           Email: req.body.Email,
           Birthday: req.body.Birthday,
           FavoriteMovies: req.body.FavoriteMovies
