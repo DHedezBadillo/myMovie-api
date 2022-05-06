@@ -8,6 +8,9 @@ const app = express();
 const mongoose = require('mongoose');
 const Models = require('./models.js');
 
+//Imports Express Validator
+const { check, validationResult } = require('express-validator');
+
 const Movies = Models.Movie;
 const Users = Models.User;
 const Genres = Models.Genre;
@@ -134,7 +137,21 @@ app.get('/users/:Username', passport.authenticate('jwt', { session: false }), (r
 });
 
   //Allows users to register, creates a new user profile
-  app.post("/users", (req, res ) => {
+  app.post("/users", 
+  [
+    check('Username', 'Username is required').isLength({min: 5}),
+    check('Username', 'Username contains non alphanumeric characters - not allowed.').isAlphanumeric(),
+    check('Password', 'Password is required').not().isEmpty(),
+    check('Email', 'Email does not appear to be valid').isEmail()
+  ], (req, res) => {
+
+  // check the validation object for errors
+    let errors = validationResult(req);
+
+    if (!errors.isEmpty()) {
+      return res.status(422).json({ errors: errors.array() });
+    }
+
     let hashedPassword = Users.hashPassword(req.body.Password);
     Users.findOne({Username: req.body.Username})
     .then((user) => {
@@ -165,7 +182,24 @@ app.get('/users/:Username', passport.authenticate('jwt', { session: false }), (r
   
 
   //Allows users to update their info
-  app.put("/users/:Username", passport.authenticate('jwt', { session: false }), (req, res ) => {
+  app.put("/users/:Username", 
+  [
+    check('Username', 'Username is required').isLength({
+        min: 5
+    }),
+    check('Username', 'Username contains non alphanumeric characters - not allowed.').isAlphanumeric(),
+    check('Password', 'Password is required').not().isEmpty(),
+    check('Email', 'Email does not appear to be valid').isEmail()
+  ],
+  passport.authenticate('jwt', { session: false }), (req, res ) => {
+
+    // check the validation object for errors
+    let errors = validationResult(req);
+
+    if (!errors.isEmpty()) {
+      return res.status(422).json({ errors: errors.array() });
+    }
+
     Users.findOneAndUpdate(
       {Username: req.params.Username},
       {
